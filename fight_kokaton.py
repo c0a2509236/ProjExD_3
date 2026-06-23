@@ -158,6 +158,8 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
+    bombs=[Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
+    score=Score()
     # bomb = Bomb((255, 0, 0), 10)
     # bombs = []
     # for _ in range(NUM_OF_BOMBS):
@@ -168,7 +170,8 @@ def main():
     beam = None  # ゲーム初期化時にはビームは存在しない
     score=Score()
     clock = pg.time.Clock()
-    tmr = 0
+    tmr=0
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -177,10 +180,10 @@ def main():
                 # スペースキー押下でBeamクラスのインスタンス生成
                 beam = Beam(bird)            
         screen.blit(bg_img, [0, 0])
-        
+
         for bomb in bombs:
             if bird.rct.colliderect(bomb.rct):
-                # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
+                  # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                 bird.change_img(8, screen)
                 fonto = pg.font.Font(None, 80)
                 txt = fonto.render("Game Over", True, (255, 0, 0))
@@ -191,7 +194,9 @@ def main():
         
         for i, bomb in enumerate(bombs):
             if beam is not None:
-                if beam.rct.colliderect(bomb.rct):  # ビームで爆弾を撃ち落としたら
+                if beam.rct.colliderect(bomb.rct):
+                    # ビームで爆弾を撃ち落としたら
+                    score.score+=1#スコアを1点増やす
                     bird.change_img(6, screen)
                     pg.display.update()
                     score.score += 1
