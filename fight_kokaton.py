@@ -139,23 +139,37 @@ class Bomb:
             self.vy *= -1
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
-
-
+class Score:
+    def __init__(self):
+        self.fonto=pg.font.Font(None,50)
+        self.color=(0,0,255) #フォントの色
+        self.score=0# スコアの初期値
+        self.img=self.fonto.render(f"Score:{self.score}",0,self.color)
+        # 画面左下の座標を設定（横100、縦：画面の下から50ピクセル上）
+        self.rct=self.img.get_rect()
+        self.rct.center=(100,600-50)#画面の高さが600
+        
+    def update(self,screen: pg.Surface):
+        self.img=self.fonto.render(f"Score:{self.score}",0,self.color)
+        #スクリーンに表示
+        screen.blit(self.img,self.rct)
+        
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
+    bombs=[Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
+    score=Score()
     # bomb = Bomb((255, 0, 0), 10)
     # bombs = []
     # for _ in range(NUM_OF_BOMBS):
     #     bomb = Bomb((255, 0, 0), 10)
     #     bombs.append(bomb)
-    bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
-
-    beam = None  # ゲーム初期化時にはビームは存在しない
+    beam=None # ゲーム初期化時にはビームは存在しない
     clock = pg.time.Clock()
-    tmr = 0
+    tmr=0
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -164,7 +178,7 @@ def main():
                 # スペースキー押下でBeamクラスのインスタンス生成
                 beam = Beam(bird)            
         screen.blit(bg_img, [0, 0])
-        
+
         for bomb in bombs:
             if bird.rct.colliderect(bomb.rct):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
@@ -178,7 +192,9 @@ def main():
         
         for i, bomb in enumerate(bombs):
             if beam is not None:
-                if beam.rct.colliderect(bomb.rct):  # ビームで爆弾を撃ち落としたら
+                if beam.rct.colliderect(bomb.rct):
+                    # ビームで爆弾を撃ち落としたら
+                    score.score+=1#スコアを1点増やす
                     bird.change_img(6, screen)
                     pg.display.update()
                     beam = None
@@ -191,7 +207,9 @@ def main():
             beam.update(screen)   
         for bomb in bombs:
             bomb.update(screen)
-        pg.display.update()
+            
+        score.update(screen)#updateメゾットを呼び出してスコアを表示    
+        pg.display.update()#画面の更新
         tmr += 1
         clock.tick(50)
 
